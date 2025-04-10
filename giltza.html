@@ -1,0 +1,66 @@
+<html>  
+
+    <head>  
+
+      <meta charset="utf-8" /> 
+
+      <title>Plantilla en blanco</title>
+
+    </head>
+
+
+
+    <body>  
+
+<script src="https://www.develop.euskadi.eus/appcont/sistema_firma/firmaGiltza/statics/js/ventanaFirmaGiltza.js?v=1" type="text/javascript"></script>
+
+<script type="text/javascript">
+var config = {
+	pro: 'true',
+	tipo_firma: 'xades-enveloped',
+   xades_enveloped: ['/r02g/ae50h/ejgvdocument_2b6797d7-304a-42bd-b3d1-473bd74e2702.html'],
+   mecanismo_firma : 'medium',
+   modo: 'iframe',
+   idioma : 'es',
+   pathEnviroment : 'desarrollo',
+   is_hash : true,
+   app: 'ae50h',
+   fResultado : function(respuesta){
+if(respuesta && respuesta.length){
+var respuestaParseada = JSON.parse(respuesta);
+var doc;
+for (var int = 0; int < respuestaParseada.length; int++) {
+doc = JSON.parse(respuesta[int]);
+console.log('Documento a firmar: ' + doc.key);
+console.log('Documento a firmado: ' + doc.value); 
+console.log('Tipo de firma: ' + doc.tipo_firma); 
+}
+} else {
+//Tratamiento else
+}
+   },
+  			 //Función de callback para el cierre de la ventana
+   fCierre : function(respuesta){
+var resJSON = JSON.parse(respuesta);
+	console.log("Estado del cierre: " + resJSON.estadoCierre);
+if (resJSON.estadoCierre == 'canceled') {
+   alert ("Proceso de firma cancelado por el usuario");
+} else if(resJSON.estadoCierre == 'failed') {
+   console.log("Descripcion del error: " + resJSON.errorDescription);
+   alert ("Firma terminada con error " + resJSON.errorDescription);
+} else if(resJSON.estadoCierre == 'confignotinformed'){
+   console.log("Descripcion del error: " + resJSON.errorDescription);
+   alert ("Firma terminada con error " + resJSON.errorDescription);
+}
+   }
+};
+
+var firma = new FirmaGiltza();
+firma.ventanaFirmaConfig (config);
+</script>
+  
+
+    </body>
+
+</html>
+

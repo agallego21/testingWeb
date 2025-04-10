@@ -1,0 +1,110 @@
+<head>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+ <!-- Make sure you put this AFTER Leaflet's CSS -->
+ <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+	 
+<style> 
+ #map { 
+   width: 100%; 
+   height: 580px; 
+   box-shadow: 5px 5px 5px #888; 
+ } 
+</style>
+
+</head>
+<body>
+<!--<iframe width="850" height="700" src="https://www.openstreetmap.org/export/embed.html?bbox=-2.754478454589844%2C42.82537245227142%2C-2.611141204833985%2C42.88137319358506&amp;layer=mapnik" style="border: 1px solid black"></iframe>
+<br/>
+<small><a href="https://www.openstreetmap.org/#map=14/42.85338/-2.68281">Ver el mapa más grande</a></small>-->
+
+<div id="map"></div>
+
+
+<script>
+var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap'
+});
+
+var map = L.map('map', {
+    center: [42.85338, -2.68281],
+    zoom: 14,
+    layers: [osm]
+});
+
+///Todos los puntos del mapa
+var point1	= L.marker([42.85338, -2.68281]).bindPopup('This is Point1'),
+    point2  = L.marker([42.85684, -2.665129]).bindPopup('This is Point2');
+	point3	= L.marker([42.864012, -2.699461]).bindPopup('This is Point3');
+    point4  = L.marker([42.845576, -2.673197]).bindPopup('This is Point4');
+
+
+//Grupos de capas
+var cities = L.layerGroup([point1, point2]);
+var obras = L.layerGroup([point3, point4]);
+
+
+var baseMaps = {
+    "OpenStreetMap": osm,
+};
+
+//Capas que se superponen
+var overlayMaps = {
+    "Cities": cities,
+	"Obras": obras
+};
+var layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+L.control.scale().addTo(map);
+
+
+//ICONO PERSONALIZADO 
+var greenIcon = L.icon({
+    iconUrl: 'https://leafletjs.com/examples/custom-icons/leaf-green.png',
+    shadowUrl: 'https://leafletjs.com/examples/custom-icons/leaf-shadow.png',
+
+    iconSize:     [38, 95], // size of the icon
+    shadowSize:   [50, 64], // size of the shadow
+    iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+    shadowAnchor: [4, 62],  // the same for the shadow
+    popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+});
+L.marker([42.85338, -2.68281],{icon: greenIcon}).addTo(map);
+
+
+var popup = L.popup();
+
+//Función que devuelve latlng del punto del mapa que se clicka
+function onMapClick(e) {
+    popup
+        .setLatLng(e.latlng)
+        .setContent(newPoint(e.latlng))
+        .openOn(map);
+}
+
+map.on('click', onMapClick);
+
+
+
+
+function newPoint(latlng) {
+	var contenidoForm='<form>'
+	+'<b>NUEVA INCIDENCIA</b>'
+	+'<br/>'
+	+'ASUNTO: <input type="text" name="asunto"/>'
+	+'<br/>'
+	+'Posición: '+latlng
+	+'<br/>'
+	+'DESCRIPCIÓN:  <textarea id="w3review" name="w3review" rows="4" cols="30"></textarea>'
+	+'<br/><br/>'
+	+'<input type="submit" value="Enviar">'
+	+'</form>';
+	return contenidoForm
+}
+</script>
+
+</body>

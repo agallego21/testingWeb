@@ -4,13 +4,13 @@
   <title>Selección de puntos en zona delimitada</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <!-- Leaflet PIP (para detección en polígono) -->
-  <script src="https://unpkg.com/leaflet-pip/leaflet-pip.min.js"></script>
+  <!-- Turf.js para detección en polígono -->
+  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js"></script>
 
   <style>
     #map {
@@ -32,26 +32,36 @@
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // Definir un polígono como zona válida (ejemplo: cuadrado en Madrid)
-    const areaPermitida = L.polygon([
+    // Definir coordenadas del polígono
+    const coords = [
       [40.4168, -3.7038],
       [40.4178, -3.6938],
       [40.4128, -3.6938],
-      [40.4128, -3.7038]
-    ], {
+      [40.4128, -3.7038],
+      [40.4168, -3.7038] // cerrar el polígono
+    ];
+
+    // Crear polígono Leaflet
+    const areaPermitida = L.polygon(coords, {
       color: 'green',
       fillColor: '#b0f5b0',
       fillOpacity: 0.4
     }).addTo(map);
 
+    // Convertir a formato GeoJSON para Turf
+    const polygon = turf.polygon([[
+      ...coords.map(c => [c[1], c[0]])
+    ]]);
+
     // Manejar clics en el mapa
     map.on('click', function(e) {
       const punto = e.latlng;
 
-      // Validar si el punto está dentro del polígono
-      const resultado = leafletPip.pointInLayer([punto.lng, punto.lat], areaPermitida);
-      
-      if (resultado.length > 0) {
+      // Validar si el punto está dentro del polígono usando Turf
+      const pt = turf.point([punto.lng, punto.lat]);
+      const dentro = turf.booleanPointInPolygon(pt, polygon);
+
+      if (dentro) {
         L.marker(punto).addTo(map);
         alert("¡Punto válido dentro del área!");
       } else {

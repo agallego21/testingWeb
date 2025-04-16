@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Definir zona en el mapa</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
+  
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+
+  <style>
+    #map {
+      height: 600px;
+      width: 100%;
+    }
+    textarea {
+      width: 100%;
+      height: 150px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Dibuja y edita una zona en el mapa</h2>
+  <div id="map"></div>
+  <textarea id="coordenadas" readonly placeholder="Coordenadas del polígono..."></textarea>
+
+  <script>
+    const map = L.map('map').setView([40.4148, -3.6988], 15);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const drawnItems = new L.FeatureGroup();
+    map.addLayer(drawnItems);
+
+    const drawControl = new L.Control.Draw({
+      draw: {
+        marker: false,
+        polyline: false,
+        rectangle: false,
+        circle: false,
+        circlemarker: false,
+        polygon: {
+          allowIntersection: false, // evita líneas cruzadas
+          showArea: true,
+          drawError: {
+            color: 'red',
+            message: '<strong>¡Las líneas no pueden cruzarse!</strong>'
+          }
+        }
+      },
+      edit: {
+        featureGroup: drawnItems,
+        remove: true
+      }
+    });
+    map.addControl(drawControl);
+
+    const textarea = document.getElementById("coordenadas");
+
+    function actualizarTextarea(layer) {
+      const coords = layer.getLatLngs()[0].map(p => [p.lat, p.lng]);
+      textarea.value = JSON.stringify(coords, null, 2);
+    }
+
+    map.on(L.Draw.Event.CREATED, function (e) {
+      drawnItems.clearLayers();
+      drawnItems.addLayer(e.layer);
+      actualizarTextarea(e.layer);
+    });
+
+    map.on('draw:edited', function (e) {
+      e.layers.eachLayer(layer => actualizarTextarea(layer));
+    });
+  </script>
+</body>
+</html>

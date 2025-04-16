@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Selección de puntos en zona delimitada</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <!-- Leaflet PIP (para detección en polígono) -->
+  <script src="https://unpkg.com/leaflet-pip/leaflet-pip.min.js"></script>
+
+  <style>
+    #map {
+      height: 600px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h2>Selecciona un punto dentro del área permitida</h2>
+  <div id="map"></div>
+
+  <script>
+    // Inicializar mapa
+    const map = L.map('map').setView([40.4148, -3.6988], 15);
+
+    // Cargar mapa base
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Definir un polígono como zona válida (ejemplo: cuadrado en Madrid)
+    const areaPermitida = L.polygon([
+      [40.4168, -3.7038],
+      [40.4178, -3.6938],
+      [40.4128, -3.6938],
+      [40.4128, -3.7038]
+    ], {
+      color: 'green',
+      fillColor: '#b0f5b0',
+      fillOpacity: 0.4
+    }).addTo(map);
+
+    // Manejar clics en el mapa
+    map.on('click', function(e) {
+      const punto = e.latlng;
+
+      // Validar si el punto está dentro del polígono
+      const resultado = leafletPip.pointInLayer([punto.lng, punto.lat], areaPermitida);
+      
+      if (resultado.length > 0) {
+        L.marker(punto).addTo(map);
+        alert("¡Punto válido dentro del área!");
+      } else {
+        alert("Este punto está fuera del área permitida.");
+      }
+    });
+  </script>
+</body>
+</html>
